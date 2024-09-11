@@ -1,0 +1,47 @@
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <chrono>
+// Recursos
+std::mutex mutexA;
+std::mutex mutexB;
+
+// Função da Thread 1
+void thread1() {
+    std::cout << "Thread 1: Tentando adquirir mutexA...\n";
+    std::unique_lock<std::mutex> lockA(mutexA);
+    std::cout << "Thread 1: MutexA adquirido!\n";
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Simula trabalho
+
+    std::cout << "Thread 1: Tentando adquirir mutexB...\n";
+    std::unique_lock<std::mutex> lockB(mutexB);
+    std::cout << "Thread 1: MutexB adquirido!\n";
+
+    // Mutexes serão liberados quando os locks saírem do escopo
+}
+
+// Função da Thread 2
+void thread2() {
+    std::cout << "Thread 2: Tentando adquirir mutexB...\n";
+    std::unique_lock<std::mutex> lockB(mutexB);
+    std::cout << "Thread 2: MutexB adquirido!\n";
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Simula trabalho
+
+    std::cout << "Thread 2: Tentando adquirir mutexA...\n";
+    std::unique_lock<std::mutex> lockA(mutexA);
+    std::cout << "Thread 2: MutexA adquirido!\n";
+
+    // Mutexes serão liberados quando os locks saírem do escopo
+}
+
+int main() {
+    std::thread t1(thread1);
+    std::thread t2(thread2);
+
+    t1.join();
+    t2.join();
+
+    return 0;
+}
